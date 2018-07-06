@@ -1,6 +1,5 @@
 package com.javaee.ws.restful.config;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
