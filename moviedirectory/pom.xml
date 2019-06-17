@@ -31,14 +31,15 @@
 		<dependency>
 			<groupId>org.glassfish.jersey.media</groupId>
 			<artifactId>jersey-media-sse</artifactId>
-			<version>2.27</version>
+			<version>2.28</version>
 		</dependency>
 
 
+		<!-- maps the json to the pojo -->
 		<dependency>
 			<groupId>org.glassfish.jersey.media</groupId>
 			<artifactId>jersey-media-moxy</artifactId>
-			<version>2.27</version>
+			<version>2.28</version>
 		</dependency>
 
 	</dependencies>
@@ -64,11 +65,9 @@
 				<version>${version.maven.war.plugin}</version>
 				<configuration>
 					<outputDirectory>
-						C:\Program Files\payara-5.182\glassfish\domains\domain1\autodeploy</outputDirectory>
+						${env.PAYARA_HOME}\glassfish\domains\domain1\autodeploy</outputDirectory>
 				</configuration>
 			</plugin>
-
-
 		</plugins>
 	</build>
 </project>
