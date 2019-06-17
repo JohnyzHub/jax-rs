@@ -10,6 +10,8 @@ public class Movie {
 
 	private int number;
 
+	private int price;
+
 	public Movie() {
 	}
 
@@ -34,8 +36,21 @@ public class Movie {
 		this.number = number;
 	}
 
+	public int getPrice() {
+		return price;
+	}
+
+	public void setPrice(int price) {
+		this.price = price;
+	}
+
 	@Override
 	public String toString() {
-		return "Movie [title=" + title + ", number=" + number + "]";
+		String movie = "Movie [title= " + title + ", number= " + number;
+		if (price > 0) {
+			movie = movie + ", price= " + price;
+		}
+		movie = movie + "]";
+		return movie;
 	}
 }
