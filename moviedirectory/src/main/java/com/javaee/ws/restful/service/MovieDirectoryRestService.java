@@ -5,7 +5,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -19,16 +21,21 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import com.javaee.ws.restful.service.exception.CustomException;
+import com.javaee.ws.restful.service.subresource.ArtistInventory;
 
 /**
  * @author shaikjb
  *
  */
+
 @ApplicationScoped
 @Path("directoryservice")
 @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-public class MovieDirectoryRestService {
+public class MovieDirectoryRestService implements DiscountService {
+
+	@Inject
+	private ArtistInventory artistInventory;
 
 	private static Map<Integer, Movie> movies;
 	static {
@@ -77,10 +84,25 @@ public class MovieDirectoryRestService {
 		return Response.status(status).build();
 	}
 
-	@GET
-	@Path("price/{discount}")
-	public int getTicketPrice(@PathParam("discount") int discount) {
-		return 50 / discount;
+	@DELETE
+	@Path("movie/{number}")
+	public Response deleteMovie(@PathParam("number") int number) {
+		Status status = Status.NOT_FOUND;
+		Movie result = null;
+		if (movies.containsKey(number)) {
+			result = movies.remove(number);
+			status = Status.ACCEPTED;
+		}
+		return Response.accepted(result).status(status).build();
+	}
 
+	@Override
+	public int getTicketPrice(int discount) {
+		return 50 / discount;
+	}
+
+	@Path("artist")
+	public ArtistInventory findArtist() {
+		return artistInventory;
 	}
 }
