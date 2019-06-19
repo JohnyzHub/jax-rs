@@ -35,9 +35,6 @@ import com.javaee.ws.restful.service.subresource.TechnicianInventory;
 @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 public class MovieDirectoryService implements DiscountService {
 
-//	@Inject
-//	private ArtistInventory artistInventory;
-
 	private static Map<Integer, Movie> movies;
 	static {
 		movies = new HashMap<Integer, Movie>(0);
@@ -109,6 +106,5 @@ public class MovieDirectoryService implements DiscountService {
 		} else {
 			return TechnicianInventory.class;
 		}
-
 	}
 }
