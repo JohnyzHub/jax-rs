@@ -7,16 +7,16 @@ import java.util.List;
  * @author johnybasha
  *
  */
-public class Artist {
+public class Person {
 
 	private String name;
 
 	private List<String> movies;
 
-	public Artist() {
+	public Person() {
 	}
 
-	public Artist(String name) {
+	public Person(String name) {
 		super();
 		this.name = name;
 		movies = new ArrayList<>(0);
@@ -40,7 +40,7 @@ public class Artist {
 
 	@Override
 	public String toString() {
-		return "Artist [name=" + name + ", movies=" + movies + "]";
+		return "Person [name=" + name + ", movies=" + movies + "]";
 	}
 
 	@Override
@@ -59,7 +59,7 @@ public class Artist {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Artist other = (Artist) obj;
+		Person other = (Person) obj;
 		if (name == null) {
 			if (other.name != null)
 				return false;
