@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -22,6 +21,8 @@ import javax.ws.rs.core.Response.Status;
 
 import com.javaee.ws.restful.service.exception.CustomException;
 import com.javaee.ws.restful.service.subresource.ArtistInventory;
+import com.javaee.ws.restful.service.subresource.Inventory;
+import com.javaee.ws.restful.service.subresource.TechnicianInventory;
 
 /**
  * @author shaikjb
@@ -29,13 +30,13 @@ import com.javaee.ws.restful.service.subresource.ArtistInventory;
  */
 
 @ApplicationScoped
-@Path("directoryservice")
+@Path("directory")
 @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-public class MovieDirectoryRestService implements DiscountService {
+public class MovieDirectoryService implements DiscountService {
 
-	@Inject
-	private ArtistInventory artistInventory;
+//	@Inject
+//	private ArtistInventory artistInventory;
 
 	private static Map<Integer, Movie> movies;
 	static {
@@ -101,8 +102,13 @@ public class MovieDirectoryRestService implements DiscountService {
 		return 50 / discount;
 	}
 
-	@Path("artist")
-	public ArtistInventory findArtist() {
-		return artistInventory;
+	@Path("inventory/{person}")
+	public Class<? extends Inventory> findArtist(@PathParam("person") String person) {
+		if (person.equalsIgnoreCase("artist")) {
+			return ArtistInventory.class;
+		} else {
+			return TechnicianInventory.class;
+		}
+
 	}
 }
