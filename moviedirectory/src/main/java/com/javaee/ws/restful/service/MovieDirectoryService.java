@@ -1,6 +1,5 @@
 package com.javaee.ws.restful.service;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,6 +22,8 @@ import com.javaee.ws.restful.service.exception.CustomException;
 import com.javaee.ws.restful.service.subresource.ArtistInventory;
 import com.javaee.ws.restful.service.subresource.Inventory;
 import com.javaee.ws.restful.service.subresource.TechnicianInventory;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author shaikjb
@@ -31,20 +32,21 @@ import com.javaee.ws.restful.service.subresource.TechnicianInventory;
 
 @ApplicationScoped
 @Path("directory")
-@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, "application/csv" })
+@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, "application/csv" })
 public class MovieDirectoryService implements DiscountService {
 
 	private static Map<Integer, Movie> movies;
 	static {
-		movies = new HashMap<Integer, Movie>(0);
-		movies.put(1, new Movie("Movie1", 1));
-		movies.put(2, new Movie("Movie2", 2));
+		movies = new HashMap<>(2);
+		movies.put(1, new Movie(1, "Movie1"));
+		movies.put(2, new Movie(2, "Movie2"));
 	}
 
 	@GET
-	public Collection<Movie> listMovies() {
-		return movies.values();
+	public Response listMovies() {
+		List<Movie> movieList = movies.values().stream().collect(Collectors.toList());
+		return Response.ok(movieList).status(Status.FOUND).type("Application/csv").build();
 	}
 
 	@GET
