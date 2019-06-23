@@ -6,18 +6,24 @@ package com.javaee.ws.restful.service;
  */
 public class Movie {
 
-	private String title;
-
 	private int number;
+
+	private String title;
 
 	private int price;
 
 	public Movie() {
 	}
 
-	public Movie(String title, int number) {
-		this.title = title;
+	public Movie(int number, String title) {
 		this.number = number;
+		this.title = title;
+	}
+
+	public Movie(int number, String title, int price) {
+		this.number = number;
+		this.title = title;
+		this.price = price;
 	}
 
 	public String getTitle() {
@@ -46,7 +52,7 @@ public class Movie {
 
 	@Override
 	public String toString() {
-		String movie = "Movie [title= " + title + ", number= " + number;
+		String movie = "Movie [number= " + number + ", title= " + title;
 		if (price > 0) {
 			movie = movie + ", price= " + price;
 		}
