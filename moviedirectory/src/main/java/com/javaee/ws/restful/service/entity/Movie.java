@@ -1,9 +1,15 @@
-package com.javaee.ws.restful.service;
+package com.javaee.ws.restful.service.entity;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * @author shaikjb
  *
  */
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Movie {
 
 	private int number;
@@ -53,9 +59,7 @@ public class Movie {
 	@Override
 	public String toString() {
 		String movie = "Movie [number= " + number + ", title= " + title;
-		if (price > 0) {
-			movie = movie + ", price= " + price;
-		}
+		movie = movie + ", price= " + price;
 		movie = movie + "]";
 		return movie;
 	}

@@ -1,4 +1,4 @@
-package com.javaee.ws.restful.service.subresource;
+package com.javaee.ws.restful.service.entity;
 
 import java.util.ArrayList;
 import java.util.List;

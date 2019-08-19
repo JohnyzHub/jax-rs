@@ -8,6 +8,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import com.javaee.ws.restful.service.entity.Person;
+
 /**
  * @author johnybasha
  *
