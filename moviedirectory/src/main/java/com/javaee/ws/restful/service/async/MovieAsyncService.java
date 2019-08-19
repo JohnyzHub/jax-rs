@@ -40,6 +40,7 @@ public class MovieAsyncService {
 
 	@GET
 	@Path("all")
+	@Produces("application/csv")
 	public void findAllMovies(@Suspended final AsyncResponse asyncResponse) {
 		TimeoutHandler timeoutHandler = new MovieTimeoutHandler(asyncResponse);
 		asyncResponse.setTimeout(5, TimeUnit.SECONDS);

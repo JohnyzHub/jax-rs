@@ -45,6 +45,7 @@ public class MovieDirectoryService implements DiscountService {
 	}
 
 	@GET
+	@Produces("application/csv")
 	public Response listMovies() {
 		List<Movie> movieList = movies.values().stream().collect(Collectors.toList());
 		return Response.ok(movieList).build();
