@@ -6,9 +6,10 @@ import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
+import com.javaee.ws.restful.service.MovieAsyncService;
 import com.javaee.ws.restful.service.MovieDirectoryService;
-import com.javaee.ws.restful.service.entityprovider.CSVMessageBodyReader;
-import com.javaee.ws.restful.service.entityprovider.CSVMessageBodyWriter;
+import com.javaee.ws.restful.service.entityprovider.CSVMessageBodyReaderWriter;
+import com.javaee.ws.restful.service.entityprovider.XMLMessageBodyReaderWriter;
 import com.javaee.ws.restful.service.exception.ArithmenticExceptionMapper;
 import com.javaee.ws.restful.service.sse.EventsResource;
 
@@ -26,8 +27,9 @@ public class ApplicationConfiguration extends Application {
 		classes.add(MovieDirectoryService.class);
 		classes.add(ArithmenticExceptionMapper.class);
 		classes.add(EventsResource.class);
-		classes.add(CSVMessageBodyWriter.class);
-		classes.add(CSVMessageBodyReader.class);
+		classes.add(CSVMessageBodyReaderWriter.class);
+		classes.add(XMLMessageBodyReaderWriter.class);
+		classes.add(MovieAsyncService.class);
 		return classes;
 	}
 }
