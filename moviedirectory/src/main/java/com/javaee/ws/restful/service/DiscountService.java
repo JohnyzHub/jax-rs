@@ -15,6 +15,6 @@ public interface DiscountService {
 
 	@GET
 	@Path("price/{discount:([1-9]|[1-4][0-9]|50)}")
-	public int getTicketPrice(@PathParam("discount") int discount);
+	public int getDiscountedPrice(@PathParam("discount") int discount);
 
 }
