@@ -64,6 +64,8 @@ public class MovieDirectoryService implements DiscountService {
 
 	@PUT
 	@Path("movie")
+	@Produces({ MediaType.APPLICATION_JSON })
+	@Consumes({ MediaType.APPLICATION_JSON })
 	public Response updateMovie(Movie movie) {
 		Status status = Status.ACCEPTED;
 		int number = movie.getNumber();
@@ -73,7 +75,7 @@ public class MovieDirectoryService implements DiscountService {
 			status = Status.NOT_MODIFIED;
 			throw new CustomException(status.toString());
 		}
-		return Response.status(status).build();
+		return Response.status(status).entity(movie).build();
 	}
 
 	@POST
