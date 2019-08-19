@@ -106,7 +106,7 @@ public class MovieDirectoryService implements DiscountService {
 
 	@Override
 	public int getDiscountedPrice(int price) {
-		return (int) (price - ((5 * price) / 0));
+		return (price - 5);
 	}
 
 	@Path("inventory/{person}")
