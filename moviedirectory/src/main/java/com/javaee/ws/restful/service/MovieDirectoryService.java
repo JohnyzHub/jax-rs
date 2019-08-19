@@ -1,7 +1,9 @@
 package com.javaee.ws.restful.service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.Consumes;
@@ -18,12 +20,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import com.javaee.ws.restful.service.entity.Movie;
 import com.javaee.ws.restful.service.exception.CustomException;
 import com.javaee.ws.restful.service.subresource.ArtistInventory;
 import com.javaee.ws.restful.service.subresource.Inventory;
 import com.javaee.ws.restful.service.subresource.TechnicianInventory;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author shaikjb
@@ -46,16 +47,18 @@ public class MovieDirectoryService implements DiscountService {
 	@GET
 	public Response listMovies() {
 		List<Movie> movieList = movies.values().stream().collect(Collectors.toList());
-		return Response.ok(movieList).status(Status.FOUND).type("Application/csv").build();
+		return Response.ok(movieList).build();
 	}
 
 	@GET
 	@Path("movie")
-	public Movie getMovie(@DefaultValue("1") @QueryParam("number") int number) {
+	public Response getMovie(@DefaultValue("1") @QueryParam("number") int number) {
+		Movie movie = new Movie();
 		if (movies.containsKey(number)) {
-			return movies.get(number);
+			movie = movies.get(number);
 		}
-		return new Movie();
+		Response response = Response.status(Status.OK).entity(movie).build();
+		return response;
 	}
 
 	@PUT
@@ -79,9 +82,11 @@ public class MovieDirectoryService implements DiscountService {
 		if (movies.containsKey(movie.getNumber())) {
 			status = Status.NOT_ACCEPTABLE;
 		} else {
+			int newPrice = getDiscountedPrice(movie.getPrice());
+			movie.setPrice(newPrice);
 			movies.put(movie.getNumber(), movie);
 		}
-		return Response.status(status).build();
+		return Response.status(status).entity(movie).build();
 	}
 
 	@DELETE
@@ -97,8 +102,8 @@ public class MovieDirectoryService implements DiscountService {
 	}
 
 	@Override
-	public int getTicketPrice(int discount) {
-		return 50 / discount;
+	public int getDiscountedPrice(int price) {
+		return (int) (price - ((5 * price) / 0));
 	}
 
 	@Path("inventory/{person}")
