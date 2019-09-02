@@ -10,18 +10,15 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
 
 /**
  * @author johnybasha
  *
  */
+@Provider
 public class ArithmenticExceptionMapper implements ExceptionMapper<ArithmeticException> {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.ws.rs.ext.ExceptionMapper#toResponse(java.lang.Throwable)
-	 */
 	@Override
 	public Response toResponse(ArithmeticException exception) {
 		Map<String, String> response = new HashMap<String, String>();
