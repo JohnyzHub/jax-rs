@@ -18,15 +18,15 @@ import com.javaee.ws.restful.service.entityprovider.XMLMessageBodyReaderWriter;
  * @author johnybasha
  *
  */
-public class MovieClient {
+public class MovieResourceClient {
 
 	private static final String BASE_URI = "http://localhost:8080/moviedirectory/rest/directory";
 
-	public MovieClient() {
+	public MovieResourceClient() {
 	}
 
 	public static void main(String[] args) throws Exception {
-		MovieClient client = new MovieClient();
+		MovieResourceClient client = new MovieResourceClient();
 
 		client.findMovie();
 		client.updateMovie();
