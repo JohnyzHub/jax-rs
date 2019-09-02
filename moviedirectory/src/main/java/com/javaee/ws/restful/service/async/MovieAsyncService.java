@@ -49,7 +49,7 @@ public class MovieAsyncService {
 		ExecutorService executorService = Executors.newFixedThreadPool(4);
 		Runnable task = () -> {
 			try {
-				Thread.sleep(7);
+				TimeUnit.SECONDS.sleep(3);
 			} catch (InterruptedException e) {
 				System.out.println(e);
 			}
@@ -67,10 +67,10 @@ public class MovieAsyncService {
 		asyncResponse.setTimeout(5, TimeUnit.SECONDS);
 		asyncResponse.setTimeoutHandler(timeoutHandler);
 
-		ExecutorService executorService = Executors.newFixedThreadPool(4);
+		ExecutorService executorService = Executors.newSingleThreadExecutor();
 		Runnable task = () -> {
 			try {
-				Thread.sleep(7);
+				TimeUnit.SECONDS.sleep(3);
 			} catch (InterruptedException e) {
 				System.out.println(e);
 			}
