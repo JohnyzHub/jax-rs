@@ -90,7 +90,14 @@ public class MovieCachedService {
 	public Response getMovie(@Min(1) @Max(2) @QueryParam("id") int movieId, @Context Request request) {
 
 		Movie movie = movies.get(movieId - 1);
-		Date lastModifieDate = movie.getLastModifieDate();
+		Date lastModifieDate = null;
+		if (movie != null) {
+			lastModifieDate = movie.getLastModifieDate();
+		}
+
+		if (lastModifieDate == null) {
+			return Response.status(Status.BAD_REQUEST).build();
+		}
 
 		ResponseBuilder responseBuilder = request.evaluatePreconditions(lastModifieDate);
 		System.out.println("ResponseBuilder: " + responseBuilder);
@@ -106,7 +113,7 @@ public class MovieCachedService {
 	@GET
 	@Path("unmodified/movie/{title}")
 	public Response getMovie(@NotNull @PathParam("title") String name, @Context Request request) {
-		Date lastModifiedDateDate = new Date();
+		Date lastModifiedDateDate = null;
 
 		Optional<Movie> optionalMovie = movies.stream().filter(movie -> movie.getTitle().equalsIgnoreCase(name))
 				.findFirst();
@@ -115,16 +122,14 @@ public class MovieCachedService {
 		if (optionalMovie.isPresent()) {
 			resultedMovie = optionalMovie.get();
 			lastModifiedDateDate = resultedMovie.getLastModifieDate();
-		} else {
+		}
+		if (lastModifiedDateDate == null) {
 			return Response.status(Status.BAD_REQUEST).build();
 		}
 
 		ResponseBuilder responseBuilder = request.evaluatePreconditions(lastModifiedDateDate);
-		System.out.println("ResponseBuilder: " + responseBuilder);
 
-		if (responseBuilder == null) { // modified date not changed.
-			responseBuilder = Response.status(Status.NOT_MODIFIED);
-		} else { // modified date changed, send the latest entity and date.
+		if (responseBuilder == null) {
 			CacheControl cacheControl = new CacheControl();
 			cacheControl.setMaxAge(5 * 60);
 			cacheControl.setPrivate(true);

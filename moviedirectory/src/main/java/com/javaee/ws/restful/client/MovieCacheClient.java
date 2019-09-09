@@ -34,14 +34,14 @@ public class MovieCacheClient {
 		MovieCacheClient client = new MovieCacheClient();
 
 		// client.findMovies_maxage();
-		// client.findMovie_ifModified();
-		// client.findMovie_ifUnmodified();
+		 //client.findMovie_ifModified();
+		client.findMovie_ifUnmodified();
 		// client.updateMovie_ifUnmodified();
 		// client.findActor_etag();
 
 		// client.updateMovie_etag_NM_lastModified_NM();
 		// client.updateMovie_etag_M_lastModified_NM();
-		 client.updateMovie_etag_NM_lastModified_M();
+		 //client.updateMovie_etag_NM_lastModified_M();
 		//client.updateMovie_etag_M_lastModified_M();
 
 	}
@@ -126,7 +126,7 @@ public class MovieCacheClient {
 
 		response = webTarget.request().headers(headersMap).get();
 
-		System.out.println("\n--Unmodified--\n" + response.getStatusInfo().getReasonPhrase());
+		System.out.println("\n--Unmodified--\n" + response.readEntity(String.class));
 		System.out.println("Cache-Control:" + response.getHeaderString(HttpHeaders.CACHE_CONTROL));
 	}
 
