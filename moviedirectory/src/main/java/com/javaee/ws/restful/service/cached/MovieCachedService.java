@@ -36,7 +36,6 @@ import com.javaee.ws.restful.service.entity.Person;
  * @author johnybasha
  *
  */
-
 @ApplicationScoped
 @Consumes({ "application/csv", MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 @Produces({ "application/csv", MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -186,9 +185,9 @@ public class MovieCachedService {
 
 	@PUT
 	@Path("etag/modifieddate/movie")
-	@Produces(MediaType.APPLICATION_XML)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response updateMovie(@NotNull Movie movie, @Context Request request) {
-		Date lastModifiedDateDate = new Date();
+		Date lastModifiedDateDate = null;
 
 		Optional<Movie> optionalMovie = movies.stream().filter(m -> m.getTitle().equalsIgnoreCase(movie.getTitle()))
 				.findFirst();
@@ -197,7 +196,9 @@ public class MovieCachedService {
 		if (optionalMovie.isPresent()) {
 			resultedMovie = optionalMovie.get();
 			lastModifiedDateDate = resultedMovie.getLastModifieDate();
-		} else {
+		}
+
+		if (lastModifiedDateDate == null) {
 			return Response.status(Status.BAD_REQUEST).build();
 		}
 
@@ -205,13 +206,10 @@ public class MovieCachedService {
 
 		ResponseBuilder responseBuilder = request.evaluatePreconditions(lastModifiedDateDate, entityTag);
 
-		if (responseBuilder != null) { // Either etag or last modified date condition not met.
-			responseBuilder = Response.status(Status.PRECONDITION_FAILED);
-			// resultedMovie.setPrice(resultedMovie.getPrice() + 6);
-		} else { // modified date changed, send the latest entity and date.
+		if (responseBuilder == null) { // Either etag or last modified date condition not met.
 			resultedMovie.setPrice(movie.getPrice());
 			entityTag = new EntityTag(Integer.toString(resultedMovie.hashCode()));
-			responseBuilder = Response.ok(resultedMovie).lastModified(lastModifiedDateDate).tag(entityTag);
+			responseBuilder = Response.ok(resultedMovie).tag(entityTag).lastModified(lastModifiedDateDate);
 		}
 		return responseBuilder.build();
 	}
