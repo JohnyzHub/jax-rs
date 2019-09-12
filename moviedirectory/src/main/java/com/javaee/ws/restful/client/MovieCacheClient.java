@@ -34,15 +34,16 @@ public class MovieCacheClient {
 		MovieCacheClient client = new MovieCacheClient();
 
 		// client.findMovies_maxage();
-		 //client.findMovie_ifModified();
-		client.findMovie_ifUnmodified();
+		// client.findMovie_ifModified();
+		// client.findMovie_ifUnmodified();
 		// client.updateMovie_ifUnmodified();
-		// client.findActor_etag();
+		 client.findActor_etag_unmatch();
+		client.findActor_etag_match();
 
 		// client.updateMovie_etag_NM_lastModified_NM();
 		// client.updateMovie_etag_M_lastModified_NM();
-		 //client.updateMovie_etag_NM_lastModified_M();
-		//client.updateMovie_etag_M_lastModified_M();
+		// client.updateMovie_etag_NM_lastModified_M();
+		// client.updateMovie_etag_M_lastModified_M();
 
 	}
 
@@ -172,7 +173,7 @@ public class MovieCacheClient {
 	 * Testing the cache mechanism using entity tag Sets the if-none-match header
 	 * with etag for validation.
 	 */
-	public void findActor_etag() {
+	public void findActor_etag_unmatch() {
 
 		Client client = ClientBuilder.newBuilder().build();
 		WebTarget webTarget = client.target(BASE_URI).path("etag").path("person");
@@ -181,29 +182,73 @@ public class MovieCacheClient {
 
 		System.out.println("First request::\n" + uriString);
 		Response response = webTarget.request().get();
-		String eTagString = response.getHeaderString(HttpHeaders.ETAG);
-		System.out.println("\nResponse: " + response.readEntity(String.class) + ", eTag: " + eTagString);
+		EntityTag entityTag = response.getEntityTag();
+		System.out.println("\nResponse: " + response.readEntity(String.class) + ", eTag: " + entityTag);
+
+		System.out.println("****   Testing ETag with IF_NONE_MATCH  header *****");
 
 		MultivaluedMap<String, Object> headersMap = null;
-		System.out.println("\nTesting with matching etag ::" + eTagString);
+		System.out.println("\nwith matching etag ::" + entityTag);
 		headersMap = new MultivaluedHashMap<>();
-		headersMap.add(HttpHeaders.IF_NONE_MATCH, eTagString);
+		headersMap.add(HttpHeaders.IF_NONE_MATCH, entityTag);
 
 		response = webTarget.request().headers(headersMap).get();
 		if (response.getEntityTag() != null) {
-			eTagString = response.getEntityTag().getValue();
+			entityTag = response.getEntityTag();
 		}
-		System.out.println("\nResponse: " + response.getStatusInfo().getReasonPhrase() + ", eTag: " + eTagString);
+		System.out.println("\nResponse: " + response.getStatusInfo().getReasonPhrase() + ", eTag: " + entityTag);
 
-		System.out.println("\nTesting with non-matching etag ::" + eTagString);
+		entityTag = getEntityTag();
+		System.out.println("\nwith non-matching etag ::" + entityTag);
 		headersMap = new MultivaluedHashMap<>();
-		headersMap.add(HttpHeaders.IF_NONE_MATCH, eTagString);
+		headersMap.add(HttpHeaders.IF_NONE_MATCH, entityTag);
 
 		response = webTarget.request().headers(headersMap).get();
 		if (response.getEntityTag() != null) {
-			eTagString = response.getEntityTag().getValue();
+			entityTag = response.getEntityTag();
 		}
-		System.out.println("\nResponse: " + response.readEntity(String.class) + ", eTag: " + eTagString);
+		System.out.println("\nResponse: " + response.readEntity(String.class) + ", eTag: " + entityTag);
+	}
+
+	/**
+	 * Testing the cache mechanism using entity tag Sets the if-match header with
+	 * etag for validation.
+	 */
+	public void findActor_etag_match() {
+
+		Client client = ClientBuilder.newBuilder().build();
+		WebTarget webTarget = client.target(BASE_URI).path("etag").path("person");
+
+		String uriString = webTarget.getUri().toString();
+
+		System.out.println("First request::\n" + uriString);
+		Response response = webTarget.request().get();
+		EntityTag entityTag = response.getEntityTag();
+		System.out.println("\nResponse: " + response.readEntity(String.class) + ", eTag: " + entityTag);
+
+		System.out.println("****   Testing ETag with IF_MATCH  header *****");
+
+		MultivaluedMap<String, Object> headersMap = null;
+		System.out.println("\nwith matching etag ::" + entityTag);
+		headersMap = new MultivaluedHashMap<>();
+		headersMap.add(HttpHeaders.IF_MATCH, entityTag);
+
+		response = webTarget.request().headers(headersMap).get();
+		if (response.getEntityTag() != null) {
+			entityTag = response.getEntityTag();
+		}
+		System.out.println("\nResponse: " + response.readEntity(String.class) + ", eTag: " + entityTag);
+
+		entityTag = getEntityTag();
+		System.out.println("\nwith non-matching etag ::" + entityTag);
+		headersMap = new MultivaluedHashMap<>();
+		headersMap.add(HttpHeaders.IF_MATCH, entityTag);
+
+		response = webTarget.request().headers(headersMap).get();
+		if (response.getEntityTag() != null) {
+			entityTag = response.getEntityTag();
+		}
+		System.out.println("\nResponse: " + response.getStatusInfo().getReasonPhrase() + ", eTag: " + entityTag);
 	}
 
 	/**

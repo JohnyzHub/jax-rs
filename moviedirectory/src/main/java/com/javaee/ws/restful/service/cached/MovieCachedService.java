@@ -175,15 +175,10 @@ public class MovieCachedService {
 	public Response getActorInfo(@Context Request request) {
 		String hashCodeString = Integer.toString(person.hashCode());
 		EntityTag entityTag = new EntityTag(hashCodeString);
-		System.out.println("Entry: " + person + ", eTag: " + entityTag);
 		ResponseBuilder responseBuilder = request.evaluatePreconditions(entityTag);
 
-		if (responseBuilder == null) {// entity changed, send the latest entity.
-			System.out.println("If null: " + person);
+		if (responseBuilder == null) {
 			responseBuilder = Response.ok(person).tag(entityTag);
-		} else {
-			responseBuilder = Response.status(Status.NOT_MODIFIED);
-			person.setName("Person2");
 		}
 		return responseBuilder.build();
 	}
