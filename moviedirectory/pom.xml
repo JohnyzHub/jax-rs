@@ -21,13 +21,13 @@
 
 	<dependencies>
 
-		<!-- https://mvnrepository.com/artifact/javax/javaee-api -->
+		<!-- https://mvnrepository.com/artifact/jakarta.platform/jakarta.jakartaee-api -->
 		<dependency>
-			<groupId>javax</groupId>
-			<artifactId>javaee-api</artifactId>
-			<version>8.0</version>
-			<scope>provided</scope>
+			<groupId>jakarta.platform</groupId>
+			<artifactId>jakarta.jakartaee-api</artifactId>
+			<version>8.0.0</version>
 		</dependency>
+
 
 		<!-- https://mvnrepository.com/artifact/org.glassfish.jersey.media/jersey-media-sse -->
 		<dependency>
