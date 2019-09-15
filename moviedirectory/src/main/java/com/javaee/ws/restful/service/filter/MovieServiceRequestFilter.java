@@ -1,4 +1,4 @@
-package com.javaee.ws.restful.service.filter.request;
+package com.javaee.ws.restful.service.filter;
 
 import java.io.IOException;
 

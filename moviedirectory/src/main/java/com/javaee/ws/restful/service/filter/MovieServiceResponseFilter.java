@@ -1,7 +1,4 @@
-/**
- * 
- */
-package com.javaee.ws.restful.service.filter.response;
+package com.javaee.ws.restful.service.filter;
 
 import java.io.IOException;
 
