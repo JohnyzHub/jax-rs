@@ -25,8 +25,8 @@ import com.javaee.ws.restful.service.entity.Movie;
  * @author johnybasha
  *
  */
-@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, "application/csv" })
-@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, "application/csv" })
+@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, "application/yaml" })
+@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, "application/yaml" })
 @Path("directory/async")
 public class MovieAsyncService {
 
@@ -40,7 +40,7 @@ public class MovieAsyncService {
 
 	@GET
 	@Path("all")
-	@Produces("application/csv")
+	@Produces("application/yaml")
 	public void findAllMovies(@Suspended final AsyncResponse asyncResponse) {
 		TimeoutHandler timeoutHandler = new MovieTimeoutHandler(asyncResponse);
 		asyncResponse.setTimeout(5, TimeUnit.SECONDS);

@@ -10,8 +10,8 @@ import javax.ws.rs.client.InvocationCallback;
 import javax.ws.rs.client.WebTarget;
 
 import com.javaee.ws.restful.service.entity.Movie;
-import com.javaee.ws.restful.service.entityprovider.CSVMessageBodyReaderWriter;
 import com.javaee.ws.restful.service.entityprovider.XMLMessageBodyReaderWriter;
+import com.javaee.ws.restful.service.entityprovider.YamlMessageBodyReaderWriter;
 
 /**
  * @author johnybasha
@@ -58,9 +58,9 @@ public class MovieAsyncClient {
 	}
 
 	public void findAllMoviesInAsync() throws Exception {
-		Client client = ClientBuilder.newBuilder().register(CSVMessageBodyReaderWriter.class).build();
+		Client client = ClientBuilder.newBuilder().register(YamlMessageBodyReaderWriter.class).build();
 		WebTarget webTarget = client.target(BASE_URI).path("async").path("all");
-		AsyncInvoker asyncInvoker = webTarget.request("application/csv").async();
+		AsyncInvoker asyncInvoker = webTarget.request("application/yaml").async();
 
 		String uriString = webTarget.getUri().toString();
 		System.out.println(uriString + ":: is being processed asynchronously");

@@ -1,5 +1,9 @@
 package com.javaee.ws.restful.service;
 
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,19 +37,26 @@ import com.javaee.ws.restful.service.subresource.TechnicianInventory;
 
 @ApplicationScoped
 @Path("directory")
-@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, "application/csv" })
-@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, "application/csv" })
+@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, "application/yaml" })
+@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, "application/yaml" })
 public class MovieDirectoryService implements DiscountService {
 
 	private static Map<Integer, Movie> movies;
 	static {
-		movies = new HashMap<>(2);
-		movies.put(1, new Movie(1, "Movie1"));
-		movies.put(2, new Movie(2, "Movie2"));
+		LocalDate localDate = LocalDate.of(2019, Month.JULY, 20);
+		Date lastModified = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+		Movie movie1 = new Movie(1, "Titanic", 30);
+		movie1.setLastModifieDate(lastModified);
+		Movie movie2 = new Movie(2, "Matrix", 60);
+		movie2.setLastModifieDate(lastModified);
+		movies = new HashMap<>();
+		movies.put(movie1.getNumber(), movie1);
+		movies.put(movie2.getNumber(), movie2);
 	}
 
 	@GET
-	@Produces("application/csv")
+	@Produces("application/yaml")
 	public Response listMovies() {
 		List<Movie> movieList = movies.values().stream().collect(Collectors.toList());
 		return Response.ok(movieList).build();
@@ -64,8 +75,8 @@ public class MovieDirectoryService implements DiscountService {
 
 	@PUT
 	@Path("movie")
-	@Produces({ MediaType.APPLICATION_JSON })
-	@Consumes({ MediaType.APPLICATION_JSON })
+	@Produces({ MediaType.APPLICATION_XML })
+	@Consumes({ MediaType.APPLICATION_XML })
 	public Response updateMovie(Movie movie) {
 		Status status = Status.ACCEPTED;
 		int number = movie.getNumber();
@@ -75,6 +86,7 @@ public class MovieDirectoryService implements DiscountService {
 			status = Status.NOT_MODIFIED;
 			throw new CustomException(status.toString());
 		}
+		System.out.println("Inside update: " + movie);
 		return Response.status(status).entity(movie).build();
 	}
 
