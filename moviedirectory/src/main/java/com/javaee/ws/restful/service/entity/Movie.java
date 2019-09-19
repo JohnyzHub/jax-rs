@@ -5,6 +5,9 @@ import java.util.Date;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import com.javaee.ws.restful.service.entity.adaptor.DateTimeAdaptor;
 
 /**
  * @author shaikjb
@@ -20,6 +23,7 @@ public class Movie {
 
 	private int price;
 
+	@XmlJavaTypeAdapter(DateTimeAdaptor.class)
 	private Date lastModifiedDate;
 
 	public Movie() {
@@ -36,6 +40,13 @@ public class Movie {
 		this.price = price;
 	}
 
+	public Movie(int number, String title, int price, Date lastModifiedDate) {
+		this.number = number;
+		this.title = title;
+		this.price = price;
+		this.lastModifiedDate = lastModifiedDate;
+	}
+	
 	public String getTitle() {
 		return title;
 	}
@@ -107,8 +118,11 @@ public class Movie {
 
 	@Override
 	public String toString() {
-		String movie = "Movie [number= " + number + ", title= " + title;
-		movie = movie + ", price= " + price + ", lastModified= " + lastModifiedDate + "]";
+		String movie = "Movie [number= " + number + ", title= " + title + ", price= " + price;
+		if (lastModifiedDate != null) {
+			movie = movie + ", lastModified= " + lastModifiedDate;
+		}
+		movie = movie + "]";
 		return movie;
 	}
 }
