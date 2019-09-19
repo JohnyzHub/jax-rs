@@ -11,8 +11,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.javaee.ws.restful.service.entity.Movie;
-import com.javaee.ws.restful.service.entityprovider.CSVMessageBodyReaderWriter;
 import com.javaee.ws.restful.service.entityprovider.XMLMessageBodyReaderWriter;
+import com.javaee.ws.restful.service.entityprovider.YamlMessageBodyReaderWriter;
 
 /**
  * @author johnybasha
@@ -28,6 +28,7 @@ public class MovieResourceClient {
 	public static void main(String[] args) throws Exception {
 		MovieResourceClient client = new MovieResourceClient();
 
+		client.findAllMovies();
 		client.findMovie();
 		client.updateMovie();
 		client.findAllMovies();
@@ -48,15 +49,15 @@ public class MovieResourceClient {
 	public void updateMovie() throws Exception {
 		Client client = ClientBuilder.newBuilder().build();
 		WebTarget webTarget = client.target(BASE_URI).path("movie");
-		Movie movie = new Movie(1, "movie1", 10);
-		Response updatedMovieResponse = webTarget.request().put(Entity.entity(movie, MediaType.APPLICATION_JSON));
+		Movie movie = new Movie(1, "Avengers", 10);
+		Response updatedMovieResponse = webTarget.request().put(Entity.entity(movie, MediaType.APPLICATION_XML));
 		System.out.println("\nMovie entry is Updated: " + updatedMovieResponse.readEntity(String.class));
 	}
 
 	public void findAllMovies() throws Exception {
-		Client client = ClientBuilder.newBuilder().register(CSVMessageBodyReaderWriter.class).build();
+		Client client = ClientBuilder.newBuilder().register(YamlMessageBodyReaderWriter.class).build();
 		WebTarget webTarget = client.target(BASE_URI);
-		List<Movie> movies = webTarget.request("application/csv").get(new GenericType<List<Movie>>() {
+		List<Movie> movies = webTarget.request("application/yaml").get(new GenericType<List<Movie>>() {
 		});
 
 		String uriString = webTarget.getUri().toString();
