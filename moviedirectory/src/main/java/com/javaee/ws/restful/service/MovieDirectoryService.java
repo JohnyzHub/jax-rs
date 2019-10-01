@@ -30,6 +30,12 @@ import com.javaee.ws.restful.service.subresource.ArtistInventory;
 import com.javaee.ws.restful.service.subresource.Inventory;
 import com.javaee.ws.restful.service.subresource.TechnicianInventory;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 /**
  * @author shaikjb
  *
@@ -39,6 +45,7 @@ import com.javaee.ws.restful.service.subresource.TechnicianInventory;
 @Path("directory")
 @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, "application/yaml" })
 @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, "application/yaml" })
+@Api(value = "directory", consumes = "application/json", produces = "Application/Json")
 public class MovieDirectoryService implements DiscountService {
 
 	private static Map<Integer, Movie> movies;
@@ -64,6 +71,8 @@ public class MovieDirectoryService implements DiscountService {
 
 	@GET
 	@Path("movie")
+	@ApiOperation(value = "This method returns the matching movie from the existing movie catalog.", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON, response = Movie.class)
+	@ApiResponses(value = {@ApiResponse(message = "Returns the matching movie from the existing movie catalog.", code = 200)})
 	public Response getMovie(@DefaultValue("1") @QueryParam("number") int number) {
 		Movie movie = new Movie();
 		if (movies.containsKey(number)) {
@@ -77,7 +86,10 @@ public class MovieDirectoryService implements DiscountService {
 	@Path("movie")
 	@Produces({ MediaType.APPLICATION_XML })
 	@Consumes({ MediaType.APPLICATION_XML })
-	public Response updateMovie(Movie movie) {
+	@ApiOperation(value = "This method updates the existing Movie object with new values and returns the response.", consumes = MediaType.APPLICATION_XML, produces = MediaType.APPLICATION_XML, response = Movie.class)
+	@ApiResponses(value = { @ApiResponse(code = 304, message = "Movie id doesn't exist. "),
+			@ApiResponse(code = 202, message = "Movie is updated."), })
+	public Response updateMovie(@ApiParam(name = "updateMovie", type = "Movie", value = "New Movie data") Movie movie) {
 		Status status = Status.ACCEPTED;
 		int number = movie.getNumber();
 		if (movies.containsKey(number)) {
@@ -92,7 +104,11 @@ public class MovieDirectoryService implements DiscountService {
 
 	@POST
 	@Path("movie")
-	public Response createMovie(Movie movie) {
+	@ApiOperation(value = "This method creates a new Movie object with supplied new values, adds it to the movie catalog and returns the response.", response = Movie.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Movie Object is successfully created . "),
+			@ApiResponse(code = 201, message = "Creates new movie. "),
+			@ApiResponse(code = 406, message = "Movie creation failed."), })
+	public Response createMovie(@ApiParam(name = "createMovie", type = "Movie", value = "New Movie data") Movie movie) {
 		Status status = Status.CREATED;
 		if (movies.containsKey(movie.getNumber())) {
 			status = Status.NOT_ACCEPTABLE;
