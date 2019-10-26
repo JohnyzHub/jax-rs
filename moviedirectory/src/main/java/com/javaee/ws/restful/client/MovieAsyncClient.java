@@ -10,8 +10,7 @@ import javax.ws.rs.client.InvocationCallback;
 import javax.ws.rs.client.WebTarget;
 
 import com.javaee.ws.restful.service.entity.Movie;
-import com.javaee.ws.restful.service.entityprovider.XMLMessageBodyReaderWriter;
-import com.javaee.ws.restful.service.entityprovider.YamlMessageBodyReaderWriter;
+import com.javaee.ws.restful.service.entity.MovieProxy;
 
 /**
  * @author johnybasha
@@ -26,19 +25,19 @@ public class MovieAsyncClient {
 
 	public static void main(String[] args) throws Exception {
 		MovieAsyncClient client = new MovieAsyncClient();
-		client.findAllMoviesInAsync();
 		client.findMovie();
+		client.findAllMovies();
 
 	}
 
 	public void findMovie() throws Exception {
-		Client client = ClientBuilder.newBuilder().register(new XMLMessageBodyReaderWriter()).build();
-		WebTarget webTarget = client.target(BASE_URI).path("async").path("movie");
+		Client client = ClientBuilder.newBuilder().build();
+		WebTarget webTarget = client.target(BASE_URI).path("async/movie");
 
-		AsyncInvoker asyncInvoker = webTarget.request("application/xml").async();
+		AsyncInvoker asyncInvoker = webTarget.queryParam("number", 2).request().async();
 
 		String uriString = webTarget.getUri().toString();
-		System.out.println(uriString + ":: is being processed asynchronously");
+		System.out.println("\n" + uriString + ":: Initiated....");
 
 		Future<Movie> responseFuture = asyncInvoker.get(new InvocationCallback<Movie>() {
 
@@ -46,40 +45,40 @@ public class MovieAsyncClient {
 			public void completed(Movie response) {
 				System.out.println("\n" + uriString + "::Response:\n" + response);
 				client.close();
-
 			}
 
 			@Override
 			public void failed(Throwable throwable) {
-				System.out.println("Invocation Failed");
-				throwable.printStackTrace();
+				System.out.println("\n" + uriString + "::Error::\n " + throwable.getMessage());
+				client.close();
 			}
 		});
+		System.out.println(uriString + ":: is being processed asynchronously");
 	}
 
-	public void findAllMoviesInAsync() throws Exception {
-		Client client = ClientBuilder.newBuilder().register(YamlMessageBodyReaderWriter.class).build();
-		WebTarget webTarget = client.target(BASE_URI).path("async").path("all");
-		AsyncInvoker asyncInvoker = webTarget.request("application/yaml").async();
+	public void findAllMovies() throws Exception {
+		Client client = ClientBuilder.newBuilder().build();
+		WebTarget webTarget = client.target(BASE_URI).path("async/all");
+		AsyncInvoker asyncInvoker = webTarget.request("application/json").async();
 
 		String uriString = webTarget.getUri().toString();
-		System.out.println(uriString + ":: is being processed asynchronously");
+		System.out.println("\n" + uriString + ":: Initiated....");
 
-		Future<List<Movie>> responseFuture = asyncInvoker.get(new InvocationCallback<List<Movie>>() {
+		Future<List<MovieProxy>> responseFuture = asyncInvoker.get(new InvocationCallback<List<MovieProxy>>() {
 
 			@Override
-			public void completed(List<Movie> response) {
+			public void completed(List<MovieProxy> response) {
 				System.out.println("\n" + uriString + "::Response::");
 				response.forEach(System.out::println);
 				client.close();
-
 			}
 
 			@Override
 			public void failed(Throwable throwable) {
-				System.out.println("Invocation Failed");
-				throwable.printStackTrace();
+				System.out.println("\n" + uriString + "::Error::\n " + throwable.getMessage());
+				client.close();
 			}
 		});
+		System.out.println(uriString + ":: is being processed asynchronously");
 	}
 }
