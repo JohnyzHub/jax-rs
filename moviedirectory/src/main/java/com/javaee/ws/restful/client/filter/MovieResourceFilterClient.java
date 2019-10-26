@@ -14,7 +14,7 @@ import javax.ws.rs.core.Response;
  */
 public class MovieResourceFilterClient {
 
-	private static final String BASE_URI = "http://localhost:8080/moviedirectory/rest/directory/movies";
+	private static final String BASE_URI = "http://localhost:8080/moviedirectory/rest/directory";
 
 	public static void main(String[] args) {
 		MovieResourceFilterClient client = new MovieResourceFilterClient();

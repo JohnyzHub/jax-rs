@@ -31,7 +31,6 @@ public class MovieServiceRequestFilter implements ContainerRequestFilter {
 	 */
 	@Override
 	public void filter(ContainerRequestContext requestContext) throws IOException {
-		System.out.println("<<<<!!!Inside server side request filter!!!>>>>");
 		String locationString = requestContext.getHeaderString(HttpHeaders.LOCATION);
 		if (locationString != null && locationString.equalsIgnoreCase(lOCATIONString)) {
 			requestContext.abortWith(Response.status(Status.UNAUTHORIZED).entity("Access Unauthorized").build());

@@ -1,8 +1,9 @@
 package com.javaee.ws.restful.service.cached;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.Month;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -29,6 +30,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 
+import com.javaee.ws.restful.service.control.DateConverter;
 import com.javaee.ws.restful.service.entity.Movie;
 import com.javaee.ws.restful.service.entity.Person;
 
@@ -37,8 +39,8 @@ import com.javaee.ws.restful.service.entity.Person;
  *
  */
 @ApplicationScoped
-@Consumes({ "application/csv", MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-@Produces({ "application/csv", MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
 @Path("directory/cache")
 public class MovieCachedService {
 
@@ -47,18 +49,18 @@ public class MovieCachedService {
 
 	public MovieCachedService() {
 		LocalDate localDate = LocalDate.of(2019, Month.JULY, 20);
-		Date lastModified = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+		LocalTime localTime = LocalTime.of(10, 20, 30);
+		LocalDateTime lastModifiedDate = LocalDateTime.of(localDate, localTime);
 
 		Movie movie1 = new Movie(1, "Titanic", 30);
-		movie1.setLastModifieDate(lastModified);
+		movie1.setLastModifieDate(lastModifiedDate);
 		Movie movie2 = new Movie(2, "Matrix", 60);
-		movie2.setLastModifieDate(lastModified);
+		movie2.setLastModifieDate(lastModifiedDate);
 		movies = new ArrayList<>(Arrays.asList(movie1, movie2));
 		person = new Person("Person1");
 		for (Movie movie : movies) {
 			person.addMovie(movie.getTitle());
 		}
-		System.out.println("Inside Constructor: " + movies);
 	}
 
 	@GET
@@ -76,7 +78,7 @@ public class MovieCachedService {
 
 		Movie movie = movies.get(id - 1);
 		EntityTag entityTag = new EntityTag(Integer.toString(movie.hashCode()));
-		Date lastModifieDate = movie.getLastModifieDate();
+		Date lastModifieDate = DateConverter.obtainDateFromLocalDateTime(movie.getLastModifieDate());
 
 		CacheControl cacheControl = new CacheControl();
 		cacheControl.setMaxAge(5 * 60);
@@ -92,7 +94,7 @@ public class MovieCachedService {
 		Movie movie = movies.get(movieId - 1);
 		Date lastModifieDate = null;
 		if (movie != null) {
-			lastModifieDate = movie.getLastModifieDate();
+			lastModifieDate = DateConverter.obtainDateFromLocalDateTime(movie.getLastModifieDate());
 		}
 
 		if (lastModifieDate == null) {
@@ -100,7 +102,6 @@ public class MovieCachedService {
 		}
 
 		ResponseBuilder responseBuilder = request.evaluatePreconditions(lastModifieDate);
-		System.out.println("ResponseBuilder: " + responseBuilder);
 		if (responseBuilder == null) { // modified date changed, send the latest entity and date.
 			CacheControl cacheControl = new CacheControl();
 			cacheControl.setMaxAge(5 * 60);
@@ -113,15 +114,14 @@ public class MovieCachedService {
 	@GET
 	@Path("unmodified/movie/{title}")
 	public Response getMovie(@NotNull @PathParam("title") String name, @Context Request request) {
-		Date lastModifiedDateDate = null;
-
 		Optional<Movie> optionalMovie = movies.stream().filter(movie -> movie.getTitle().equalsIgnoreCase(name))
 				.findFirst();
 
 		Movie resultedMovie = null;
+		Date lastModifiedDateDate = null;
 		if (optionalMovie.isPresent()) {
 			resultedMovie = optionalMovie.get();
-			lastModifiedDateDate = resultedMovie.getLastModifieDate();
+			lastModifiedDateDate = DateConverter.obtainDateFromLocalDateTime(resultedMovie.getLastModifieDate());
 		}
 		if (lastModifiedDateDate == null) {
 			return Response.status(Status.BAD_REQUEST).build();
@@ -140,18 +140,17 @@ public class MovieCachedService {
 
 	@PUT
 	@Path("unmodified/movie/{title}")
-	@Produces(MediaType.APPLICATION_JSON)
 	public Response updateMovie_unmodified(@NotNull @PathParam("title") String name, Movie movie,
 			@Context Request request) {
-		Date lastModifiedDateDate = new Date();
-
 		Optional<Movie> optionalMovie = movies.stream().filter(m -> m.getTitle().equalsIgnoreCase(name)).findFirst();
 
+		Date lastModifiedDateDate = null;
 		Movie resultedMovie = null;
 		if (optionalMovie.isPresent()) {
 			resultedMovie = optionalMovie.get();
-			lastModifiedDateDate = resultedMovie.getLastModifieDate();
-		} else {
+			lastModifiedDateDate = DateConverter.obtainDateFromLocalDateTime(resultedMovie.getLastModifieDate());
+		}
+		if (lastModifiedDateDate == null) {
 			return Response.status(Status.BAD_REQUEST).build();
 		}
 
@@ -178,24 +177,24 @@ public class MovieCachedService {
 		ResponseBuilder responseBuilder = request.evaluatePreconditions(entityTag);
 
 		if (responseBuilder == null) {
-			responseBuilder = Response.ok(person).tag(entityTag);
+			CacheControl cacheControl = new CacheControl();
+			cacheControl.setMaxAge(5 * 60);
+			responseBuilder = Response.ok(person).tag(entityTag).cacheControl(cacheControl);
 		}
 		return responseBuilder.build();
 	}
 
 	@PUT
 	@Path("etag/modifieddate/movie")
-	@Produces(MediaType.APPLICATION_JSON)
 	public Response updateMovie(@NotNull Movie movie, @Context Request request) {
-		Date lastModifiedDateDate = null;
-
 		Optional<Movie> optionalMovie = movies.stream().filter(m -> m.getTitle().equalsIgnoreCase(movie.getTitle()))
 				.findFirst();
 
 		Movie resultedMovie = null;
+		Date lastModifiedDateDate = null;
 		if (optionalMovie.isPresent()) {
 			resultedMovie = optionalMovie.get();
-			lastModifiedDateDate = resultedMovie.getLastModifieDate();
+			lastModifiedDateDate = DateConverter.obtainDateFromLocalDateTime(resultedMovie.getLastModifieDate());
 		}
 
 		if (lastModifiedDateDate == null) {

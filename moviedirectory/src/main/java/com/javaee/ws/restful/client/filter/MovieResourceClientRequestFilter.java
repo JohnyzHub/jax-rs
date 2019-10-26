@@ -23,7 +23,5 @@ public class MovieResourceClientRequestFilter implements ClientRequestFilter {
 		if (!(languageString == null || languageString.equalsIgnoreCase("ENGLISH"))) {
 			requestContext.abortWith(Response.status(Status.BAD_REQUEST).build());
 		}
-
 	}
-
 }

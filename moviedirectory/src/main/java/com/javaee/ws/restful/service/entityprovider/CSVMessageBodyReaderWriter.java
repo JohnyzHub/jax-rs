@@ -42,7 +42,7 @@ import com.javaee.ws.restful.service.entity.Movie;
  * @author johnybasha
  *
  */
-@Provider
+//@Provider
 @Consumes("application/csv")
 @Produces("application/csv")
 public class CSVMessageBodyReaderWriter implements MessageBodyReader<List<Movie>>, MessageBodyWriter<List<Movie>> {
@@ -109,7 +109,7 @@ public class CSVMessageBodyReaderWriter implements MessageBodyReader<List<Movie>
 		List<Movie> moviesList = null;
 		try (ICsvBeanReader beanReader = new CsvBeanReader(new InputStreamReader(entityStream),
 				CsvPreference.STANDARD_PREFERENCE)) {
-			 String[] header = beanReader.getHeader(false);
+			String[] header = beanReader.getHeader(false);
 			Movie obj = null;
 			moviesList = new ArrayList<>();
 			while ((obj = beanReader.read(Movie.class, header, processor)) != null) {

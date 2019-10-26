@@ -1,9 +1,9 @@
 package com.javaee.ws.restful.service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.Month;
-import java.time.ZoneId;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,28 +43,46 @@ import io.swagger.annotations.ApiResponses;
 
 @ApplicationScoped
 @Path("directory")
-@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, "application/yaml" })
-@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, "application/yaml" })
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 @Api(value = "directory", consumes = "application/json", produces = "Application/Json")
 public class MovieDirectoryService implements DiscountService {
 
 	private static Map<Integer, Movie> movies;
 	static {
 		LocalDate localDate = LocalDate.of(2019, Month.JULY, 20);
-		Date lastModified = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+		LocalTime localTime = LocalTime.of(10, 20, 30);
+		LocalDateTime lastModifiedDate = LocalDateTime.of(localDate, localTime);
 
 		Movie movie1 = new Movie(1, "Titanic", 30);
-		movie1.setLastModifieDate(lastModified);
+		movie1.setLastModifieDate(lastModifiedDate);
 		Movie movie2 = new Movie(2, "Matrix", 60);
-		movie2.setLastModifieDate(lastModified);
+		movie2.setLastModifieDate(lastModifiedDate);
 		movies = new HashMap<>();
 		movies.put(movie1.getNumber(), movie1);
 		movies.put(movie2.getNumber(), movie2);
 	}
 
 	@GET
+	public Response listMovies_json() {
+		List<Movie> movieList = movies.values().stream().collect(Collectors.toList());
+		return Response.ok(movieList).build();
+	}
+
+	@GET
+	@Path("yaml")
 	@Produces("application/yaml")
+	@Consumes("application/yaml")
 	public Response listMovies() {
+		List<Movie> movieList = movies.values().stream().collect(Collectors.toList());
+		return Response.ok(movieList).build();
+	}
+
+	@GET
+	@Path("csv")
+	@Produces("application/csv")
+	@Consumes("application/csv")
+	public Response listMovies_csv() {
 		List<Movie> movieList = movies.values().stream().collect(Collectors.toList());
 		return Response.ok(movieList).build();
 	}
@@ -72,7 +90,8 @@ public class MovieDirectoryService implements DiscountService {
 	@GET
 	@Path("movie")
 	@ApiOperation(value = "This method returns the matching movie from the existing movie catalog.", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON, response = Movie.class)
-	@ApiResponses(value = {@ApiResponse(message = "Returns the matching movie from the existing movie catalog.", code = 200)})
+	@ApiResponses(value = {
+			@ApiResponse(message = "Returns the matching movie from the existing movie catalog.", code = 200) })
 	public Response getMovie(@DefaultValue("1") @QueryParam("number") int number) {
 		Movie movie = new Movie();
 		if (movies.containsKey(number)) {
@@ -84,9 +103,7 @@ public class MovieDirectoryService implements DiscountService {
 
 	@PUT
 	@Path("movie")
-	@Produces({ MediaType.APPLICATION_XML })
-	@Consumes({ MediaType.APPLICATION_XML })
-	@ApiOperation(value = "This method updates the existing Movie object with new values and returns the response.", consumes = MediaType.APPLICATION_XML, produces = MediaType.APPLICATION_XML, response = Movie.class)
+	@ApiOperation(value = "This method updates the existing Movie object with new values and returns the response.", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON, response = Movie.class)
 	@ApiResponses(value = { @ApiResponse(code = 304, message = "Movie id doesn't exist. "),
 			@ApiResponse(code = 202, message = "Movie is updated."), })
 	public Response updateMovie(@ApiParam(name = "updateMovie", type = "Movie", value = "New Movie data") Movie movie) {

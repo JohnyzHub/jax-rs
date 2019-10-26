@@ -1,6 +1,8 @@
 package com.javaee.ws.restful.client;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.Month;
 import java.time.ZoneId;
 import java.util.Date;
@@ -17,7 +19,6 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 import com.javaee.ws.restful.service.entity.Movie;
-import com.javaee.ws.restful.service.entityprovider.XMLMessageBodyReaderWriter;
 
 /**
  * @author johnybasha
@@ -33,12 +34,13 @@ public class MovieCacheClient {
 	public static void main(String[] args) throws Exception {
 		MovieCacheClient client = new MovieCacheClient();
 
-		// client.findMovies_maxage();
+		client.findMovies_maxage();
+		client.findActor_etag_unmatch();
+		client.findActor_etag_match();
+
 		// client.findMovie_ifModified();
 		// client.findMovie_ifUnmodified();
 		// client.updateMovie_ifUnmodified();
-		 client.findActor_etag_unmatch();
-		client.findActor_etag_match();
 
 		// client.updateMovie_etag_NM_lastModified_NM();
 		// client.updateMovie_etag_M_lastModified_NM();
@@ -48,7 +50,7 @@ public class MovieCacheClient {
 	}
 
 	public void findMovies_maxage() throws Exception {
-		Client client = ClientBuilder.newBuilder().register(new XMLMessageBodyReaderWriter()).build();
+		Client client = ClientBuilder.newBuilder().build();
 		WebTarget webTarget = client.target(BASE_URI);
 
 		Response response = webTarget.request().get();
@@ -61,7 +63,7 @@ public class MovieCacheClient {
 	 * Testing the cache mechanism with if-modified-since header
 	 */
 	public void findMovie_ifModified() {
-		Client client = ClientBuilder.newBuilder().register(new XMLMessageBodyReaderWriter()).build();
+		Client client = ClientBuilder.newBuilder().build();
 		WebTarget webTarget = client.target(BASE_URI).path("modified").path("movie").queryParam("id", 1);
 
 		String uriString = webTarget.getUri().toString();
@@ -70,8 +72,8 @@ public class MovieCacheClient {
 		Response response = webTarget.request().get();
 		System.out.println("\nResponse: " + response.readEntity(String.class));
 
-		System.out.println("\nTesting If-Modified-Since 13th July::");
-		LocalDate localDate = LocalDate.of(2019, Month.JULY, 13);
+		System.out.println("\nTesting If-Modified-Since before::");
+		LocalDate localDate = LocalDate.of(2019, Month.JULY, 19);
 		Date lastModified = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
 		MultivaluedMap<String, Object> headersMap = new MultivaluedHashMap<>();
@@ -81,8 +83,8 @@ public class MovieCacheClient {
 
 		System.out.println("\n--Modified::\n" + response.readEntity(String.class));
 
-		System.out.println("\nTesting If-Modified-Since 23th July::");
-		localDate = LocalDate.of(2019, Month.JULY, 23);
+		System.out.println("\nTesting If-Modified-Since same::");
+		localDate = LocalDate.of(2019, Month.JULY, 20);
 		lastModified = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
 		headersMap = new MultivaluedHashMap<>();
@@ -90,14 +92,25 @@ public class MovieCacheClient {
 
 		response = webTarget.request().headers(headersMap).get();
 
-		System.out.println("\n--Unmodified::\n" + response.getStatusInfo().getReasonPhrase());
+		System.out.println("\n--Modified::\n" + response.readEntity(String.class));
+
+		System.out.println("\nTesting If-Modified-Since After::");
+		localDate = LocalDate.of(2019, Month.JULY, 21);
+		lastModified = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+		headersMap = new MultivaluedHashMap<>();
+		headersMap.add(HttpHeaders.IF_MODIFIED_SINCE, lastModified);
+
+		response = webTarget.request().headers(headersMap).get();
+
+		System.out.println("--Response::" + response.getStatusInfo());
 	}
 
 	/**
 	 * Testing the cache mechanism with if-unmodified-since header
 	 */
 	public void findMovie_ifUnmodified() {
-		Client client = ClientBuilder.newBuilder().register(new XMLMessageBodyReaderWriter()).build();
+		Client client = ClientBuilder.newBuilder().build();
 		WebTarget webTarget = client.target(BASE_URI).path("unmodified").path("movie").path("Titanic");
 
 		String uriString = webTarget.getUri().toString();
@@ -115,7 +128,19 @@ public class MovieCacheClient {
 
 		response = webTarget.request().headers(headersMap).get();
 
-		System.out.println("\n--Modified--\n" + response.readEntity(String.class));
+		System.out.println("\n--Response--\n" + response.getStatusInfo());
+		System.out.println("Cache-Control:" + response.getHeaderString(HttpHeaders.CACHE_CONTROL));
+
+		System.out.println("\nTesting If-Unmodified-Since 20th July::");
+		localDate = LocalDate.of(2019, Month.JULY, 20);
+		lastModified = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+		headersMap = new MultivaluedHashMap<>();
+		headersMap.add(HttpHeaders.IF_UNMODIFIED_SINCE, lastModified);
+
+		response = webTarget.request().headers(headersMap).get();
+
+		System.out.println("\n--Response--\n" + response.getStatusInfo());
 		System.out.println("Cache-Control:" + response.getHeaderString(HttpHeaders.CACHE_CONTROL));
 
 		System.out.println("\nTesting If-Unmodified-Since 23th July::");
@@ -135,7 +160,7 @@ public class MovieCacheClient {
 	 * Testing the cache mechanism with if-unmodified-since header
 	 */
 	public void updateMovie_ifUnmodified() {
-		Client client = ClientBuilder.newBuilder().register(new XMLMessageBodyReaderWriter()).build();
+		Client client = ClientBuilder.newBuilder().build();
 		WebTarget webTarget = client.target(BASE_URI).path("movie").path("1");
 
 		String uriString = webTarget.getUri().toString();
@@ -183,9 +208,9 @@ public class MovieCacheClient {
 		System.out.println("First request::\n" + uriString);
 		Response response = webTarget.request().get();
 		EntityTag entityTag = response.getEntityTag();
-		System.out.println("\nResponse: " + response.readEntity(String.class) + ", eTag: " + entityTag);
+		System.out.println("Response: " + response.readEntity(String.class) + ", eTag: " + entityTag);
 
-		System.out.println("****   Testing ETag with IF_NONE_MATCH  header *****");
+		System.out.println("\n****   Testing ETag with IF_NONE_MATCH  header *****");
 
 		MultivaluedMap<String, Object> headersMap = null;
 		System.out.println("\nwith matching etag ::" + entityTag);
@@ -193,10 +218,8 @@ public class MovieCacheClient {
 		headersMap.add(HttpHeaders.IF_NONE_MATCH, entityTag);
 
 		response = webTarget.request().headers(headersMap).get();
-		if (response.getEntityTag() != null) {
-			entityTag = response.getEntityTag();
-		}
-		System.out.println("\nResponse: " + response.getStatusInfo().getReasonPhrase() + ", eTag: " + entityTag);
+		System.out.println(
+				"Response: " + response.getStatusInfo().getReasonPhrase() + ", eTag: " + response.getEntityTag());
 
 		entityTag = getEntityTag();
 		System.out.println("\nwith non-matching etag ::" + entityTag);
@@ -204,10 +227,7 @@ public class MovieCacheClient {
 		headersMap.add(HttpHeaders.IF_NONE_MATCH, entityTag);
 
 		response = webTarget.request().headers(headersMap).get();
-		if (response.getEntityTag() != null) {
-			entityTag = response.getEntityTag();
-		}
-		System.out.println("\nResponse: " + response.readEntity(String.class) + ", eTag: " + entityTag);
+		System.out.println("Response: " + response.readEntity(String.class) + ", eTag: " + response.getEntityTag());
 	}
 
 	/**
@@ -224,12 +244,12 @@ public class MovieCacheClient {
 		System.out.println("First request::\n" + uriString);
 		Response response = webTarget.request().get();
 		EntityTag entityTag = response.getEntityTag();
-		System.out.println("\nResponse: " + response.readEntity(String.class) + ", eTag: " + entityTag);
+		System.out.println("Response: " + response.readEntity(String.class) + ", eTag: " + entityTag);
 
-		System.out.println("****   Testing ETag with IF_MATCH  header *****");
+		System.out.println("\n****   Testing ETag with IF_MATCH  header *****");
 
 		MultivaluedMap<String, Object> headersMap = null;
-		System.out.println("\nwith matching etag ::" + entityTag);
+		System.out.println("with matching etag ::" + entityTag);
 		headersMap = new MultivaluedHashMap<>();
 		headersMap.add(HttpHeaders.IF_MATCH, entityTag);
 
@@ -237,7 +257,7 @@ public class MovieCacheClient {
 		if (response.getEntityTag() != null) {
 			entityTag = response.getEntityTag();
 		}
-		System.out.println("\nResponse: " + response.readEntity(String.class) + ", eTag: " + entityTag);
+		System.out.println("Response: " + response.readEntity(String.class) + ", eTag: " + entityTag);
 
 		entityTag = getEntityTag();
 		System.out.println("\nwith non-matching etag ::" + entityTag);
@@ -245,10 +265,8 @@ public class MovieCacheClient {
 		headersMap.add(HttpHeaders.IF_MATCH, entityTag);
 
 		response = webTarget.request().headers(headersMap).get();
-		if (response.getEntityTag() != null) {
-			entityTag = response.getEntityTag();
-		}
-		System.out.println("\nResponse: " + response.getStatusInfo().getReasonPhrase() + ", eTag: " + entityTag);
+		System.out.println(
+				"Response: " + response.getStatusInfo().getReasonPhrase() + ", eTag: " + response.getEntityTag());
 	}
 
 	/**
@@ -256,14 +274,13 @@ public class MovieCacheClient {
 	 * 
 	 */
 	public void updateMovie_etag_NM_lastModified_NM() {
-		Client client = ClientBuilder.newBuilder().register(new XMLMessageBodyReaderWriter()).build();
-
+		Client client = ClientBuilder.newBuilder().build();
 		WebTarget webTarget = client.target(BASE_URI).path("movie").path("2");
 
 		String uriString = webTarget.getUri().toString();
 
 		System.out.println("First request::\n" + uriString);
-		Response response = webTarget.request().accept(MediaType.APPLICATION_XML).get();
+		Response response = webTarget.request().get();
 		Movie movie = null;
 		Object resultedEntity = response.readEntity(Movie.class);
 		if (resultedEntity != null && resultedEntity instanceof Movie) {
@@ -359,14 +376,13 @@ public class MovieCacheClient {
 	 * 
 	 */
 	public void updateMovie_etag_M_lastModified_NM() {
-		Client client = ClientBuilder.newBuilder().register(new XMLMessageBodyReaderWriter()).build();
-
+		Client client = ClientBuilder.newBuilder().build();
 		WebTarget webTarget = client.target(BASE_URI).path("movie").path("2");
 
 		String uriString = webTarget.getUri().toString();
 
 		System.out.println("First request::\n" + uriString);
-		Response response = webTarget.request().accept(MediaType.APPLICATION_XML).get();
+		Response response = webTarget.request().get();
 		Movie movie = null;
 		Object resultedEntity = response.readEntity(Movie.class);
 		if (resultedEntity != null && resultedEntity instanceof Movie) {
@@ -461,14 +477,13 @@ public class MovieCacheClient {
 	 * 
 	 */
 	public void updateMovie_etag_NM_lastModified_M() {
-		Client client = ClientBuilder.newBuilder().register(new XMLMessageBodyReaderWriter()).build();
-
+		Client client = ClientBuilder.newBuilder().build();
 		WebTarget webTarget = client.target(BASE_URI).path("movie").path("2");
 
 		String uriString = webTarget.getUri().toString();
 
 		System.out.println("First request::\n" + uriString);
-		Response response = webTarget.request().accept(MediaType.APPLICATION_XML).get();
+		Response response = webTarget.request().get();
 		Movie movie = null;
 		Object resultedEntity = response.readEntity(Movie.class);
 		if (resultedEntity != null && resultedEntity instanceof Movie) {
@@ -563,14 +578,13 @@ public class MovieCacheClient {
 	 * 
 	 */
 	public void updateMovie_etag_M_lastModified_M() {
-		Client client = ClientBuilder.newBuilder().register(new XMLMessageBodyReaderWriter()).build();
-
+		Client client = ClientBuilder.newBuilder().build();
 		WebTarget webTarget = client.target(BASE_URI).path("movie").path("2");
 
 		String uriString = webTarget.getUri().toString();
 
 		System.out.println("First request::\n" + uriString);
-		Response response = webTarget.request().accept(MediaType.APPLICATION_XML).get();
+		Response response = webTarget.request().get();
 		Movie movie = null;
 		Object resultedEntity = response.readEntity(Movie.class);
 		if (resultedEntity != null && resultedEntity instanceof Movie) {
@@ -662,10 +676,11 @@ public class MovieCacheClient {
 
 	private EntityTag getEntityTag() {
 		LocalDate localDate = LocalDate.of(2019, Month.SEPTEMBER, 20);
-		Date lastModified = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+		LocalTime localTime = LocalTime.of(10, 20, 30);
+		LocalDateTime lastModifiedDate = LocalDateTime.of(localDate, localTime);
 
 		Movie movie = new Movie(1, "SUPERMAN", 30);
-		movie.setLastModifieDate(lastModified);
+		movie.setLastModifieDate(lastModifiedDate);
 		return new EntityTag(Integer.toString(movie.hashCode()));
 	}
 }

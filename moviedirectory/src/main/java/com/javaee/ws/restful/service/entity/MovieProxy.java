@@ -1,12 +1,15 @@
 package com.javaee.ws.restful.service.entity;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Date;
 
 /**
- * @author shaikjb
+ * @author johnybasha
  *
  */
-public class Movie {
+public class MovieProxy {
 
 	private int number;
 
@@ -14,35 +17,18 @@ public class Movie {
 
 	private int price;
 
-	private LocalDateTime lastModifiedDate;
+	private Date lastModifiedDate;
 
-	public Movie() {
+	public MovieProxy() {
 	}
 
-	public Movie(int number, String title) {
-		this.number = number;
-		this.title = title;
-	}
-
-	public Movie(int number, String title, int price) {
-		this.number = number;
-		this.title = title;
-		this.price = price;
-	}
-
-	public Movie(int number, String title, int price, LocalDateTime lastModifiedDate) {
-		this.number = number;
-		this.title = title;
-		this.price = price;
-		this.lastModifiedDate = lastModifiedDate;
-	}
-
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
+	public MovieProxy(Movie movie) {
+		this.number = movie.getNumber();
+		this.title = movie.getTitle();
+		this.price = movie.getPrice();
+		LocalDateTime localDateTime = movie.getLastModifieDate();
+		ZonedDateTime zdtDateTime = localDateTime.atZone(ZoneId.systemDefault());
+		this.lastModifiedDate = Date.from(zdtDateTime.toInstant());
 	}
 
 	public int getNumber() {
@@ -53,6 +39,14 @@ public class Movie {
 		this.number = number;
 	}
 
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
 	public int getPrice() {
 		return price;
 	}
@@ -61,11 +55,11 @@ public class Movie {
 		this.price = price;
 	}
 
-	public LocalDateTime getLastModifieDate() {
+	public Date getLastModifiedDate() {
 		return lastModifiedDate;
 	}
 
-	public void setLastModifieDate(LocalDateTime lastModifiedDate) {
+	public void setLastModifiedDate(Date lastModifiedDate) {
 		this.lastModifiedDate = lastModifiedDate;
 	}
 
@@ -88,7 +82,7 @@ public class Movie {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Movie other = (Movie) obj;
+		MovieProxy other = (MovieProxy) obj;
 		if (lastModifiedDate == null) {
 			if (other.lastModifiedDate != null)
 				return false;
@@ -108,11 +102,8 @@ public class Movie {
 
 	@Override
 	public String toString() {
-		String movie = "Movie [number= " + number + ", title= " + title + ", price= " + price;
-		if (lastModifiedDate != null) {
-			movie = movie + ", lastModified= " + lastModifiedDate;
-		}
-		movie = movie + "]";
-		return movie;
+		return "Movie [number=" + number + ", title=" + title + ", price=" + price + ", lastModifiedDate="
+				+ lastModifiedDate + "]";
 	}
+
 }
