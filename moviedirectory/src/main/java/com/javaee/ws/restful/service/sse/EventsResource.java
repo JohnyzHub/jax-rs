@@ -1,5 +1,8 @@
 package com.javaee.ws.restful.service.sse;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -17,18 +20,22 @@ import javax.ws.rs.sse.SseEventSink;
 public class EventsResource {
 
 	@GET
-	@Path("read")
 	@Produces(MediaType.SERVER_SENT_EVENTS)
 	public void testServerEvents(@Context SseEventSink eventSink, @Context Sse sse) {
-		for (int i = 0; i < 10; i++) {
-			final OutboundSseEvent event = sse.newEventBuilder().name("message").data(String.class, "Hello Client" + i)
-					.build();
-			eventSink.send(event);
-			try {
-				Thread.sleep((3 * 1000));
-			} catch (InterruptedException e) {
+		ExecutorService singleThreadService = Executors.newSingleThreadExecutor();
+
+		singleThreadService.submit(() -> {
+
+			for (int i = 0; i < 10; i++) {
+				final OutboundSseEvent event = sse.newEventBuilder().name("Event").id(Integer.toString(i))
+						.data(String.class, "Message " + i + " from Client").build();
+				eventSink.send(event);
+				try {
+					Thread.sleep((3 * 1000));
+				} catch (InterruptedException e) {
+				}
 			}
-		}
+		});
 	}
 
 }
