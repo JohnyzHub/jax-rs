@@ -7,8 +7,11 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
-@Path("baseinventory")
 public interface Inventory {
+
+	@GET
+	@Path("all")
+	public Response findAll();
 
 	@GET
 	public Response findRecord(@PathParam("person") String person, @QueryParam("name") String name);

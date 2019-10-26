@@ -1,10 +1,11 @@
 package com.javaee.ws.restful.service.subresource;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import javax.ws.rs.Path;
+import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
@@ -14,12 +15,22 @@ import com.javaee.ws.restful.service.entity.Person;
  * @author johnybasha
  *
  */
-@Path("techinicianinventory")
+@ApplicationScoped
 public class TechnicianInventory implements Inventory {
 
-	private static List<Person> technicians = new ArrayList<>(0);
+	private List<Person> technicians = new ArrayList<>(0);
 
 	public TechnicianInventory() {
+		Person technician1 = new Person("Technician1");
+		technician1.addMovie("Movie1");
+		Person technician2 = new Person("Technician2");
+		technician2.addMovie("Movie2");
+		technicians.addAll(new ArrayList<>(Arrays.asList(technician1, technician2)));
+	}
+
+	@Override
+	public Response findAll() {
+		return Response.ok(technicians).build();
 	}
 
 	@Override
