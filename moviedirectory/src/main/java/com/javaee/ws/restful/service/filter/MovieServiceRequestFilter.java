@@ -18,7 +18,7 @@ import javax.ws.rs.ext.Provider;
 @PreMatching
 public class MovieServiceRequestFilter implements ContainerRequestFilter {
 
-	private String lOCATIONString = "BERMUDA";
+	private String locationString = "USA";
 
 	public MovieServiceRequestFilter() {
 	}
@@ -31,8 +31,8 @@ public class MovieServiceRequestFilter implements ContainerRequestFilter {
 	 */
 	@Override
 	public void filter(ContainerRequestContext requestContext) throws IOException {
-		String locationString = requestContext.getHeaderString(HttpHeaders.LOCATION);
-		if (locationString != null && locationString.equalsIgnoreCase(lOCATIONString)) {
+		String headerString = requestContext.getHeaderString(HttpHeaders.LOCATION);
+		if (!(headerString == null || headerString.equalsIgnoreCase(locationString))) {
 			requestContext.abortWith(Response.status(Status.UNAUTHORIZED).entity("Access Unauthorized").build());
 		}
 	}

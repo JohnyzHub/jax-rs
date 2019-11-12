@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.validation.constraints.Max;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -20,12 +21,13 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import com.javaee.ws.restful.service.entity.Movie;
-import com.javaee.ws.restful.service.exception.CustomException;
+import com.javaee.ws.restful.service.exception.MovieExceptionCases;
 import com.javaee.ws.restful.service.subresource.ArtistInventory;
 import com.javaee.ws.restful.service.subresource.Inventory;
 import com.javaee.ws.restful.service.subresource.TechnicianInventory;
@@ -46,7 +48,7 @@ import io.swagger.annotations.ApiResponses;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Api(value = "directory", consumes = "application/json", produces = "Application/Json")
-public class MovieDirectoryService implements DiscountService {
+public class MovieDirectoryService {
 
 	private static Map<Integer, Movie> movies;
 	static {
@@ -70,6 +72,20 @@ public class MovieDirectoryService implements DiscountService {
 	}
 
 	@GET
+	@Path("movies")
+	@ApiOperation(value = "This method returns the matching movie from the existing movie catalog.", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON, response = Movie.class)
+	@ApiResponses(value = {
+			@ApiResponse(message = "Returns the matching movie from the existing movie catalog.", code = 200) })
+	public Response getMovie(@Max(value = 2) @DefaultValue("1") @QueryParam("number") int number) {
+		Movie movie = new Movie();
+		if (movies.containsKey(number)) {
+			movie = movies.get(number);
+		}
+		Response response = Response.status(Status.OK).entity(movie).build();
+		return response;
+	}
+
+	@GET
 	@Path("yaml")
 	@Produces("application/yaml")
 	@Consumes("application/yaml")
@@ -87,22 +103,8 @@ public class MovieDirectoryService implements DiscountService {
 		return Response.ok(movieList).build();
 	}
 
-	@GET
-	@Path("movie")
-	@ApiOperation(value = "This method returns the matching movie from the existing movie catalog.", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON, response = Movie.class)
-	@ApiResponses(value = {
-			@ApiResponse(message = "Returns the matching movie from the existing movie catalog.", code = 200) })
-	public Response getMovie(@DefaultValue("1") @QueryParam("number") int number) {
-		Movie movie = new Movie();
-		if (movies.containsKey(number)) {
-			movie = movies.get(number);
-		}
-		Response response = Response.status(Status.OK).entity(movie).build();
-		return response;
-	}
-
 	@PUT
-	@Path("movie")
+	@Path("movies")
 	@ApiOperation(value = "This method updates the existing Movie object with new values and returns the response.", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON, response = Movie.class)
 	@ApiResponses(value = { @ApiResponse(code = 304, message = "Movie id doesn't exist. "),
 			@ApiResponse(code = 202, message = "Movie is updated."), })
@@ -113,14 +115,14 @@ public class MovieDirectoryService implements DiscountService {
 			movies.put(number, movie);
 		} else {
 			status = Status.NOT_MODIFIED;
-			throw new CustomException(status.toString());
+			throw new WebApplicationException(status.toString());
 		}
 		System.out.println("Inside update: " + movie);
 		return Response.status(status).entity(movie).build();
 	}
 
 	@POST
-	@Path("movie")
+	@Path("movies")
 	@ApiOperation(value = "This method creates a new Movie object with supplied new values, adds it to the movie catalog and returns the response.", response = Movie.class)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Movie Object is successfully created . "),
 			@ApiResponse(code = 201, message = "Creates new movie. "),
@@ -130,15 +132,14 @@ public class MovieDirectoryService implements DiscountService {
 		if (movies.containsKey(movie.getNumber())) {
 			status = Status.NOT_ACCEPTABLE;
 		} else {
-			int newPrice = getDiscountedPrice(movie.getPrice());
-			movie.setPrice(newPrice);
+			movie.setPrice(movie.getPrice());
 			movies.put(movie.getNumber(), movie);
 		}
 		return Response.status(status).entity(movie).build();
 	}
 
 	@DELETE
-	@Path("movie/{number}")
+	@Path("movies/{number}")
 	public Response deleteMovie(@PathParam("number") int number) {
 		Status status = Status.NOT_FOUND;
 		Movie result = null;
@@ -149,9 +150,9 @@ public class MovieDirectoryService implements DiscountService {
 		return Response.accepted(result).status(status).build();
 	}
 
-	@Override
-	public int getDiscountedPrice(int price) {
-		return (price - 5);
+	@Path("exceptions")
+	public MovieExceptionCases raiseException() {
+		return new MovieExceptionCases();
 	}
 
 	@Path("inventory/{person}")

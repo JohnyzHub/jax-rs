@@ -30,8 +30,7 @@ public class MovieResourceClient {
 
 	public static void main(String[] args) throws Exception {
 		MovieResourceClient client = new MovieResourceClient();
-		client.findAllMovies_yaml();
-		client.findAllMovies_csv();
+		client.findAllMovies();
 		/*-
 		client.findAllMovies();
 		client.findAllMovies_yaml();
@@ -48,18 +47,18 @@ public class MovieResourceClient {
 
 	public void findMovie() throws Exception {
 		Client client = ClientBuilder.newBuilder().build();
-		WebTarget webTarget = client.target(BASE_URI).path("movie");
+		WebTarget webTarget = client.target(BASE_URI).path("movies");
 
 		Movie movie = webTarget.request().get(new GenericType<Movie>() {
 		});
 
 		String uriString = webTarget.getUri().toString();
-		System.out.println("\n" + uriString + ":: is being processed synchronously::\n" + movie);
+		System.out.println("\n" + uriString + ":: is being processed::\n" + movie);
 	}
 
 	public void createMovie() throws Exception {
 		Client client = ClientBuilder.newBuilder().build();
-		WebTarget webTarget = client.target(BASE_URI).path("movie");
+		WebTarget webTarget = client.target(BASE_URI).path("movies");
 
 		LocalDate localDate = LocalDate.of(2019, Month.SEPTEMBER, 10);
 		LocalTime localTime = LocalTime.of(05, 20, 30);
@@ -72,7 +71,7 @@ public class MovieResourceClient {
 
 	public void updateMovie() throws Exception {
 		Client client = ClientBuilder.newBuilder().build();
-		WebTarget webTarget = client.target(BASE_URI).path("movie");
+		WebTarget webTarget = client.target(BASE_URI).path("movies");
 
 		LocalDate localDate = LocalDate.of(2019, Month.SEPTEMBER, 20);
 		LocalTime localTime = LocalTime.of(10, 20, 30);

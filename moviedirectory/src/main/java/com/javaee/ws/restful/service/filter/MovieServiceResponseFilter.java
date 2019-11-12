@@ -15,7 +15,7 @@ import javax.ws.rs.ext.Provider;
 @Provider
 public class MovieServiceResponseFilter implements ContainerResponseFilter {
 
-	private String lOCATIONString = "BERMUDA";
+	private String locationString = "USA";
 
 	public MovieServiceResponseFilter() {
 	}
@@ -24,10 +24,9 @@ public class MovieServiceResponseFilter implements ContainerResponseFilter {
 	public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext)
 			throws IOException {
 
-		String locationString = requestContext.getHeaderString(HttpHeaders.LOCATION);
-		if (locationString == null || !locationString.equalsIgnoreCase(lOCATIONString)) {
+		String headerString = requestContext.getHeaderString(HttpHeaders.LOCATION);
+		if (headerString == null || headerString.equalsIgnoreCase(locationString)) {
 			responseContext.getHeaders().add(HttpHeaders.CONTENT_LANGUAGE, "ENGLISH");
 		}
 	}
-
 }

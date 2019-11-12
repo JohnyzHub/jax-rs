@@ -10,7 +10,6 @@ import javax.ws.rs.client.InvocationCallback;
 import javax.ws.rs.client.WebTarget;
 
 import com.javaee.ws.restful.service.entity.Movie;
-import com.javaee.ws.restful.service.entity.MovieProxy;
 
 /**
  * @author johnybasha
@@ -25,6 +24,7 @@ public class MovieAsyncClient {
 
 	public static void main(String[] args) throws Exception {
 		MovieAsyncClient client = new MovieAsyncClient();
+		client.findAllMovies();
 		client.findMovie();
 		client.findAllMovies();
 
@@ -64,10 +64,10 @@ public class MovieAsyncClient {
 		String uriString = webTarget.getUri().toString();
 		System.out.println("\n" + uriString + ":: Initiated....");
 
-		Future<List<MovieProxy>> responseFuture = asyncInvoker.get(new InvocationCallback<List<MovieProxy>>() {
+		Future<List<Movie>> responseFuture = asyncInvoker.get(new InvocationCallback<List<Movie>>() {
 
 			@Override
-			public void completed(List<MovieProxy> response) {
+			public void completed(List<Movie> response) {
 				System.out.println("\n" + uriString + "::Response::");
 				response.forEach(System.out::println);
 				client.close();
