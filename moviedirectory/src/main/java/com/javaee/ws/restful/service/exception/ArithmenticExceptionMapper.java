@@ -23,7 +23,7 @@ public class ArithmenticExceptionMapper implements ExceptionMapper<ArithmeticExc
 	public Response toResponse(ArithmeticException exception) {
 		Map<String, String> response = new HashMap<String, String>();
 		response.put("code", "ERR-????");
-		response.put("type", "General Error");
+		response.put("type", exception.getClass().getSimpleName());
 		response.put("message", exception.getMessage());
 
 		return Response.status(Status.BAD_REQUEST).entity(response).type(MediaType.APPLICATION_JSON).build();
