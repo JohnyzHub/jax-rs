@@ -19,14 +19,19 @@ public class MovieSubResourceClient {
 	public static void main(String[] args) {
 		MovieSubResourceClient client = new MovieSubResourceClient();
 		client.testSubResource_get_artist();
-		client.testSubResource_get_artist_all();
+		client.testSubResource_get_technician();
+
+		/*-
+		 * client.testSubResource_get_technician();
+		 * client.testSubResource_get_technician_all();
+		 */
 	}
 
 	public void testSubResource_get_artist() {
 		Client client = ClientBuilder.newBuilder().build();
-		WebTarget webTarget = client.target(BASE_URI).path("artist").path("ArtistOne");
+		WebTarget webTarget = client.target(BASE_URI).path("artist");
 
-		Response response = webTarget.request().get();
+		Response response = webTarget.queryParam("name", "Artist1").request().get();
 
 		String uriString = webTarget.getUri().toString();
 		System.out.println("\n" + uriString + ":: is being processed ::\n" + response.readEntity(String.class));
@@ -42,4 +47,23 @@ public class MovieSubResourceClient {
 		System.out.println("\n" + uriString + ":: is being processed ::\n" + response.readEntity(String.class));
 	}
 
+	public void testSubResource_get_technician() {
+		Client client = ClientBuilder.newBuilder().build();
+		WebTarget webTarget = client.target(BASE_URI).path("technician");
+
+		Response response = webTarget.queryParam("name", "Technician1").request().get();
+
+		String uriString = webTarget.getUri().toString();
+		System.out.println("\n" + uriString + ":: is being processed ::\n" + response.readEntity(String.class));
+	}
+
+	public void testSubResource_get_technician_all() {
+		Client client = ClientBuilder.newBuilder().build();
+		WebTarget webTarget = client.target(BASE_URI).path("technician").path("all");
+
+		Response response = webTarget.request().get();
+
+		String uriString = webTarget.getUri().toString();
+		System.out.println("\n" + uriString + ":: is being processed ::\n" + response.readEntity(String.class));
+	}
 }
