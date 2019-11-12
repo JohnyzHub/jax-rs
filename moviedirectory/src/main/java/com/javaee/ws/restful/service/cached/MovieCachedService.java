@@ -64,16 +64,24 @@ public class MovieCachedService {
 	}
 
 	@GET
-	public Response listMovies() {
-		CacheControl cacheControl = new CacheControl();
-		cacheControl.setMaxAge(5 * 60);
-		cacheControl.setPrivate(true);
-
-		return Response.ok(movies).lastModified(new Date()).cacheControl(cacheControl).build();
+	@Path("expires/header")
+	public Response listMoviesWithExpiresHeader() {
+		ResponseBuilder responseBuilder = Response.ok(movies).type(MediaType.APPLICATION_JSON);
+		responseBuilder.expires(new Date());
+		return responseBuilder.build();
 	}
 
 	@GET
-	@Path("movie/{id}")
+	public Response listMovies() {
+		CacheControl cacheControl = new CacheControl();
+		cacheControl.setMaxAge(5 * 60); // seconds
+		cacheControl.setPrivate(true);
+
+		return Response.ok(movies).cacheControl(cacheControl).build();
+	}
+
+	@GET
+	@Path("movies/{id}")
 	public Response listMovies(@Min(1) @Max(2) @PathParam("id") int id) {
 
 		Movie movie = movies.get(id - 1);
@@ -83,12 +91,11 @@ public class MovieCachedService {
 		CacheControl cacheControl = new CacheControl();
 		cacheControl.setMaxAge(5 * 60);
 		cacheControl.setPrivate(true);
-		System.out.println("Inside movie/{id}:" + movie);
 		return Response.ok(movie).tag(entityTag).lastModified(lastModifieDate).cacheControl(cacheControl).build();
 	}
 
 	@GET
-	@Path("modified/movie")
+	@Path("modified/movies")
 	public Response getMovie(@Min(1) @Max(2) @QueryParam("id") int movieId, @Context Request request) {
 
 		Movie movie = movies.get(movieId - 1);
@@ -112,34 +119,34 @@ public class MovieCachedService {
 	}
 
 	@GET
-	@Path("unmodified/movie/{title}")
+	@Path("unmodified/movies/{title}")
 	public Response getMovie(@NotNull @PathParam("title") String name, @Context Request request) {
 		Optional<Movie> optionalMovie = movies.stream().filter(movie -> movie.getTitle().equalsIgnoreCase(name))
 				.findFirst();
 
 		Movie resultedMovie = null;
-		Date lastModifiedDateDate = null;
+		Date lastModifiedDate = null;
 		if (optionalMovie.isPresent()) {
 			resultedMovie = optionalMovie.get();
-			lastModifiedDateDate = DateConverter.obtainDateFromLocalDateTime(resultedMovie.getLastModifieDate());
+			lastModifiedDate = DateConverter.obtainDateFromLocalDateTime(resultedMovie.getLastModifieDate());
 		}
-		if (lastModifiedDateDate == null) {
+		if (lastModifiedDate == null) {
 			return Response.status(Status.BAD_REQUEST).build();
 		}
 
-		ResponseBuilder responseBuilder = request.evaluatePreconditions(lastModifiedDateDate);
+		ResponseBuilder responseBuilder = request.evaluatePreconditions(lastModifiedDate);
 
 		if (responseBuilder == null) {
 			CacheControl cacheControl = new CacheControl();
 			cacheControl.setMaxAge(5 * 60);
 			cacheControl.setPrivate(true);
-			responseBuilder = Response.ok(resultedMovie).lastModified(lastModifiedDateDate).cacheControl(cacheControl);
+			responseBuilder = Response.ok(resultedMovie).lastModified(lastModifiedDate).cacheControl(cacheControl);
 		}
 		return responseBuilder.build();
 	}
 
 	@PUT
-	@Path("unmodified/movie/{title}")
+	@Path("unmodified/movies/{title}")
 	public Response updateMovie_unmodified(@NotNull @PathParam("title") String name, Movie movie,
 			@Context Request request) {
 		Optional<Movie> optionalMovie = movies.stream().filter(m -> m.getTitle().equalsIgnoreCase(name)).findFirst();
