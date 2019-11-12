@@ -19,6 +19,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.container.AsyncResponse;
+import javax.ws.rs.container.CompletionCallback;
+import javax.ws.rs.container.ConnectionCallback;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.container.TimeoutHandler;
 import javax.ws.rs.core.GenericEntity;
@@ -53,6 +55,7 @@ public class MovieAsyncService {
 	@GET
 	@Path("all")
 	public void findAllMovies(@Suspended final AsyncResponse asyncResponse) {
+		asyncResponse.register(new MovieConnectionCallback(), new MovieCompletionCallback());
 		TimeoutHandler timeoutHandler = new MovieTimeoutHandler(asyncResponse);
 		asyncResponse.setTimeout(5, TimeUnit.SECONDS);
 		asyncResponse.setTimeoutHandler(timeoutHandler);
@@ -71,6 +74,7 @@ public class MovieAsyncService {
 	@Path("movie")
 	public void findMovie(@Suspended final AsyncResponse asyncResponse,
 			@DefaultValue("1") @QueryParam("number") int number) {
+		asyncResponse.register(new MovieConnectionCallback(), new MovieCompletionCallback());
 		TimeoutHandler timeoutHandler = new MovieTimeoutHandler(asyncResponse);
 		asyncResponse.setTimeout(5, TimeUnit.SECONDS);
 		asyncResponse.setTimeoutHandler(timeoutHandler);
@@ -110,4 +114,25 @@ class MovieTimeoutHandler implements TimeoutHandler {
 		asyncResponse.resume(Response.status(Status.REQUEST_TIMEOUT).entity("Operation time out.").build());
 	}
 
+}
+
+class MovieCompletionCallback implements CompletionCallback {
+
+	@Override
+	public void onComplete(Throwable throwable) {
+		if (throwable != null) {
+			System.out.println(throwable.getMessage());
+		} else {
+			System.out.println("MovieCompletionCallback:: Async process finished successfully..");
+		}
+	}
+}
+
+class MovieConnectionCallback implements ConnectionCallback {
+
+	@Override
+	public void onDisconnect(AsyncResponse disconnected) {
+		System.out.println("MovieConnectionCallback:: Async process connection disconnected ..");
+
+	}
 }
